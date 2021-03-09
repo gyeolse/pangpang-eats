@@ -22,9 +22,11 @@
     "cookie-parser": "1.4.5",
     "cors": "2.8.5",
     "crypto": "1.0.1",
+    "email-regex": "4.0.0",
     "express": "4.17.1",
     "jsonwebtoken": "8.5.1",
     "method-override": "3.0.0",
-    "mysql2": "2.2.5"
+    "mysql2": "2.2.5",
+    "validator": "13.5.2"
   }
 }
