@@ -1,9 +1,62 @@
-const { pool } = require("../../config/key");
+const { pool, transporter, NODEMAILER_USER } = require("../../config/key");
 const crypto = require("crypto");
 
 const userDAO = require("../DAO/userDAO");
 const validator = require("validator");
-const emailRegex = require("email-regex");
+
+exports.findEmail = async (req, res) => {
+  //1. 사용자의 이름과 아이디를 request로 받아온다.
+  const { email, name } = req.body;
+
+  //2. 사용자의 비밀번호를 임시로 만든 random 문자열로 세팅한다.
+  const tempPassword = Math.random().toString(36).slice(2);
+
+  //3. 사용자를 찾는다.
+  try {
+    const emailData = await userDAO.emailCheckUser(email);
+
+    if (emailData.length == 0) {
+      return res.json({
+        message: "찾으시는 이메일이 존재하지 않습니다.",
+        code: 301,
+        isSuccess: false,
+      });
+    }
+    //4. 임시로 만든 비밀번호로 변경시킨다.
+    const changeUserPasswordParams = [tempPassword, email];
+    await userDAO.chageUserPassword(changeUserPasswordParams);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: "DB 오류",
+      code: 501,
+      isSuccess: false,
+    });
+  }
+
+  //4. 만든 random 문자열을 그대로 사용자의 이메일로 전송한다.
+  try {
+    let info = await transporter.sendMail({
+      from: `PANGPANG-EATS ${NODEMAILER_USER}`,
+      to: email,
+      subject: "[팡팡이츠] 임시 비밀번호 안내",
+      html: `<b>임시 비밀번호는 ${tempPassword} 입니다.</b>`,
+    });
+    console.log(tempPassword);
+
+    return res.status(200).json({
+      isSuccess: true,
+      code: 200,
+      message: "등록된 이메일로 새로 발급된 패스워드가 전송되었습니다.",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "메일 전송 오류",
+      code: 501,
+      isSuccess: false,
+    });
+  }
+};
 
 //회원가입 로직 userEmail, userName, userPhone, userPassword
 exports.register = async (req, res) => {

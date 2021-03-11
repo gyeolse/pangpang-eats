@@ -3,6 +3,7 @@ const {
   registerUserQuery,
   emailCheckQuery,
   phoneCheckQuery,
+  chageUserPasswordQuery,
 } = require("../Queries/userQuery");
 
 //1. 유저 회원가입
@@ -36,4 +37,12 @@ exports.phoneCheckUser = async (phoneParam) => {
   connection.release();
 
   return phoneUserData;
+};
+
+exports.chageUserPassword = async (emailParam) => {
+  const connection = await pool.getConnection(async (conn) => conn);
+
+  await connection.query(chageUserPasswordQuery, emailParam);
+
+  connection.release();
 };
