@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const userDAO = require("../DAO/userDAO");
 const validator = require("validator");
 
+//비밀번호 초기화
 exports.findEmail = async (req, res) => {
   //1. 사용자의 이름과 아이디를 request로 받아온다.
   const { email, name } = req.body;
@@ -18,7 +19,7 @@ exports.findEmail = async (req, res) => {
     if (emailData.length == 0) {
       return res.json({
         message: "찾으시는 이메일이 존재하지 않습니다.",
-        code: 301,
+        statusCode: 301,
         isSuccess: false,
       });
     }
@@ -29,7 +30,7 @@ exports.findEmail = async (req, res) => {
     console.log(err);
     return res.status(500).json({
       message: "DB 오류",
-      code: 501,
+      statusCode: 501,
       isSuccess: false,
     });
   }
@@ -46,13 +47,13 @@ exports.findEmail = async (req, res) => {
 
     return res.status(200).json({
       isSuccess: true,
-      code: 200,
+      statusCode: 200,
       message: "등록된 이메일로 새로 발급된 패스워드가 전송되었습니다.",
     });
   } catch (err) {
     return res.status(500).json({
       message: "메일 전송 오류",
-      code: 501,
+      statusCode: 501,
       isSuccess: false,
     });
   }
@@ -68,49 +69,49 @@ exports.register = async (req, res) => {
   if (!userEmail) {
     return res.json({
       message: "이메일을 입력하세요",
-      code: 301,
+      statusCode: 301,
       isSuccess: false,
     });
   }
   if (!validator.isEmail(userEmail)) {
     return res.json({
       message: "이메일을 올바르게 입력하세요",
-      code: 302,
+      statusCode: 302,
       isSuccess: false,
     });
   }
   if (!userName) {
     return res.json({
       message: "이름을 정확히 입력하세요",
-      code: 303,
+      statusCode: 303,
       isSuccess: false,
     });
   }
   if (!userPhone) {
     return res.json({
       message: "휴대폰 번호를 올바르게 입력해주세요.",
-      code: 304,
+      statusCode: 304,
       isSuccess: false,
     });
   }
   if (!phoneRegExp.test(userPhone)) {
     return res.json({
       message: "휴대폰 번호를 올바르게 입력해주세요.",
-      code: 305,
+      statusCode: 305,
       isSuccess: false,
     });
   }
   if (!userPassword) {
     return res.json({
       message: "비밀번호는 6~15자 이내로 입력하셔야 합니다.",
-      code: 306,
+      statusCode: 306,
       isSuccess: false,
     });
   }
   if (userPassword.length < 6 || userPassword.length > 15) {
     return res.json({
       message: "비밀번호는 6~15자 이내로 입력하셔야 합니다.",
-      code: 307,
+      statusCode: 307,
       isSuccess: false,
     });
   }
@@ -127,7 +128,7 @@ exports.register = async (req, res) => {
         return res.json({
           message:
             "이미 가입된 이메일 주소입니다. 다른 이메일을 입력하여 주세요.",
-          code: 308,
+          statusCode: 308,
           isSuccess: false,
         });
       }
@@ -137,12 +138,11 @@ exports.register = async (req, res) => {
       if (phoneData.length > 0) {
         return res.json({
           message: `${phoneData[0].userEmail}로 가입된 휴대폰번호입니다.`,
-          code: 309,
+          statusCode: 309,
           isSuccess: false,
         });
       }
 
-      /////////////////////////////////////////////////////////////
       const hash = await crypto
         .createHash("sha512")
         .update(userPassword)
@@ -154,22 +154,20 @@ exports.register = async (req, res) => {
 
       return res.json({
         isSuccess: true,
-        code: 200,
+        statusCode: 200,
         message: "성공",
       });
     } catch (err) {
-      console.log(err);
       return res.json({
         isSuccess: false,
-        code: 500,
+        statusCode: 500,
         message: "내부 오류",
       });
     }
   } catch (err) {
-    console.log(err);
     return res.json({
       isSuccess: false,
-      code: 500,
+      statusCode: 500,
       message: "내부 오류",
     });
   }

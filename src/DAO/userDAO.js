@@ -39,6 +39,7 @@ exports.phoneCheckUser = async (phoneParam) => {
   return phoneUserData;
 };
 
+//3. 비밀번호 초기화
 exports.chageUserPassword = async (emailParam) => {
   const connection = await pool.getConnection(async (conn) => conn);
 
